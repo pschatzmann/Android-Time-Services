@@ -12,11 +12,6 @@ An Android app that gathers time from NTP servers, the phone's GNSS receiver and
 - **Background operation:** runs as a foreground service, follows Wi-Fi and Bluetooth state, and raises notifications when something goes wrong.
 - **Languages:** English, German, French, Spanish, Simplified and Traditional Chinese.
 
-## Install
-
-Download the APK from the [Releases](https://github.com/pschatzmann/Android-Time-Services/releases) page (Android 8.0 or newer). Installing outside Google Play requires allowing "Install unknown apps" for your browser or file manager, and Play Protect may ask for confirmation.
-
-To build it yourself: `cd android && ./gradlew installDebug` (see [Build and install](docs/build.md)).
 
 ## Documentation
 
@@ -30,6 +25,12 @@ To build it yourself: `cd android && ./gradlew installDebug` (see [Build and ins
 - [Releasing on GitHub](docs/releasing.md)
 - [Before publishing on Google Play](docs/google-play.md)
 - [Roadmap](docs/roadmap.md)
+
+## Install
+
+Download the APK from the [Releases](https://github.com/pschatzmann/Android-Time-Services/releases) page (Android 8.0 or newer). Installing outside Google Play requires allowing "Install unknown apps" for your browser or file manager, and Play Protect may ask for confirmation.
+
+To build it yourself: `cd android && ./gradlew installDebug` (see [Build and install](docs/build.md)).
 
 ## License
 

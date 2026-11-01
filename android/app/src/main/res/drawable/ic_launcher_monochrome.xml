@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="1.12"
+        android:scaleY="1.12">
+        <!-- clock ring -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="3"
+            android:pathData="M49,54m-19,0a19,19 0,1 1,38 0a19,19 0,1 1,-38 0" />
+        <!-- 12 / 3 / 6 / 9 ticks -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2"
+            android:strokeLineCap="round"
+            android:pathData="M49,37.5L49,40.5M65.5,54L62.5,54M49,70.5L49,67.5M32.5,54L35.5,54" />
+        <!-- hands (10:10) -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2.6"
+            android:strokeLineCap="round"
+            android:pathData="M49,54L42.1,50M49,54L59.4,48" />
+        <!-- signal arcs -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="3"
+            android:strokeLineCap="round"
+            android:pathData="M69.68,36.64A27,27 0,0 1,69.68 71.36" />
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FFFFFF"
+            android:strokeAlpha="0.55"
+            android:strokeWidth="3"
+            android:strokeLineCap="round"
+            android:pathData="M74.28,32.79A33,33 0,0 1,74.28 75.21" />
+        <!-- centre pivot -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M49,54m-1.8,0a1.8,1.8 0,1 1,3.6 0a1.8,1.8 0,1 1,-3.6 0" />
+    </group>
+</vector>

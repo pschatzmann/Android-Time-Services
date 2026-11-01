@@ -1,6 +1,0 @@
-{
-  "name": "Chronos Precision Time Gateway",
-  "description": "Multi-source high-precision time synchronization appliance combining BLE CTS, NTP, GPS PPS, and atomic clocks with local clock disciplining and NTP/BLE CTS publishing.",
-  "requestFramePermissions": ["bluetooth", "serial"],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

@@ -202,6 +202,7 @@ class TimeEngine(app: Application) {
     )
 
     private val gnss = GnssSource(ctx)
+    private val gnssRaw = GnssRawClock(ctx)
 
     private val bleServer = BleCtsServer(
         ctx,
@@ -280,6 +281,7 @@ class TimeEngine(app: Application) {
             bleServer.stop()
             bleClient.stop()
             gnss.stop()
+            gnssRaw.stop()
         }
     }
 
@@ -510,10 +512,17 @@ class TimeEngine(app: Application) {
                     } else if (!hasLocationPermission.value) {
                         rt.error = res(R.string.err_location_perm)
                     } else {
-                        gnss.latest?.let { fix ->
-                            if (fix.atMs != rt.sample?.at) record(rt, fix.offsetMs, 0.0, fix.atMs)
+                        // Prefer the receiver's raw clock when the phone provides it; else Location.time.
+                        val raw = gnssRaw.latest?.takeIf { cfg.gnssRawEnabled && now - it.atMs < 5_000 }
+                        if (raw != null) {
+                            if (raw.atMs != rt.sample?.at) record(rt, raw.offsetMs, 0.0, raw.atMs)
+                            rt.detail = res(R.string.src_detail_gnss_raw, raw.uncertaintyUs)
+                        } else {
+                            gnss.latest?.let { fix ->
+                                if (fix.atMs != rt.sample?.at) record(rt, fix.offsetMs, 0.0, fix.atMs)
+                            }
+                            rt.detail = gnss.latest?.let { res(R.string.src_detail_gnss_acc, it.accuracyM.toDouble()) } ?: res(R.string.src_detail_gnss_wait)
                         }
-                        rt.detail = gnss.latest?.let { res(R.string.src_detail_gnss_acc, it.accuracyM.toDouble()) } ?: res(R.string.src_detail_gnss_wait)
                     }
                 }
                 SourceType.BLE_CTS -> if (!hasBlePermission.value) rt.error = res(R.string.err_ble_perm)
@@ -522,7 +531,9 @@ class TimeEngine(app: Application) {
 
         // Start/stop the hardware-bound sources on the main thread.
         withContext(Dispatchers.Main) {
-            if (gpsWanted && gnss.supported && hasLocationPermission.value) gnss.start() else gnss.stop()
+            val gpsOn = gpsWanted && gnss.supported && hasLocationPermission.value
+            if (gpsOn) gnss.start() else gnss.stop()
+            if (gpsOn && cfg.gnssRawEnabled) gnssRaw.start() else gnssRaw.stop()
             if (bleWanted != null && hasBlePermission.value && bluetoothOn.value) bleClient.start(bleWanted.deviceAddress) else if (bleClient.isRunning) bleClient.stop()
         }
         gnssState.value = GnssState(
@@ -532,6 +543,9 @@ class TimeEngine(app: Application) {
             satsVisible = gnss.satsVisible,
             accuracyM = gnss.latest?.accuracyM ?: 0f,
             hasFix = gnss.latest != null,
+            rawStatus = gnssRaw.status,
+            rawUncertaintyUs = gnssRaw.latest?.uncertaintyUs ?: 0.0,
+            rawDetail = gnssRaw.detail,
         )
     }
 

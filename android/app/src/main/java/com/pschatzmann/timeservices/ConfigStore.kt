@@ -29,6 +29,7 @@ class ConfigStore(ctx: Context) {
 
     private fun toJson(c: SystemConfig) = JSONObject().apply {
         put("keepAwake", c.keepAwake)
+        put("gnssRawEnabled", c.gnssRawEnabled)
         put("publishSourceId", c.publishSourceId)
         put("disciplining", JSONObject().apply {
             put("algorithm", c.disciplining.algorithm)
@@ -78,6 +79,7 @@ class ConfigStore(ctx: Context) {
         val srcs = o.getJSONArray("sources")
         return SystemConfig(
             keepAwake = o.optBoolean("keepAwake", false),
+            gnssRawEnabled = o.optBoolean("gnssRawEnabled", true),
             publishSourceId = o.optString("publishSourceId", "fused"),
             disciplining = DiscipliningConfig(
                 algorithm = d.getString("algorithm"),

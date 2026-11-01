@@ -102,6 +102,7 @@ fun SourcesScreen(vm: TimeEngine, requestPermissions: () -> Unit) {
                             KeyValue(stringResource(R.string.gnss_active), stringResource(if (gnss.active) R.string.yes else R.string.no))
                             KeyValue(stringResource(R.string.gnss_sats), "${gnss.satsUsed}/${gnss.satsVisible}")
                             KeyValue(stringResource(R.string.gnss_fix), if (gnss.hasFix) stringResource(R.string.gnss_fix_yes, gnss.accuracyM.toDouble()) else stringResource(R.string.gnss_fix_waiting))
+                            Text(gnssRawStatusText(gnss, cfg.gnssRawEnabled), fontFamily = Mono, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(stringResource(R.string.gnss_note), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }

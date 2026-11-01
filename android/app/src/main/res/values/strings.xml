@@ -201,6 +201,24 @@
     <string name="ble_cfg_note">Settings for the Bluetooth Current Time Service this phone offers to nearby devices. Switch it on in the Publish tab.</string>
     <string name="disc_note">How readings from the time sources are combined into one clock estimate, and how quickly that estimate follows them.</string>
     <string name="lang_note">Language of the app. “System default” follows your phone’s language.</string>
+    <string name="gnss_raw_title">Satellite time (GNSS)</string>
+    <string name="gnss_raw_note">Optionally reads the GNSS receiver’s raw clock for a far more precise offset than the normal location time. It is used only on phones that provide the raw data and switches itself off on all others.</string>
+    <string name="gnss_raw_switch">Use raw GNSS clock when available</string>
+    <string name="gnss_raw_off">Raw GNSS clock: off</string>
+    <string name="gnss_raw_waiting">Raw GNSS clock: waiting for data (go outdoors; for continuous data enable “Force full GNSS measurements” in Developer options)</string>
+    <string name="gnss_raw_active">Raw GNSS clock: active, uncertainty ±%1$.0f µs</string>
+    <string name="gnss_raw_unsupported">Raw GNSS clock: not supported by this phone, using normal location time</string>
+    <string name="gnss_raw_nobias">Raw GNSS clock: this phone does not report the receiver clock bias, using normal location time</string>
+    <string name="gnss_raw_notimestamp">Raw GNSS clock: this phone does not timestamp the receiver clock, using normal location time</string>
+    <string name="src_detail_gnss_raw">raw GNSS clock, ±%1$.0f µs</string>
+    <string name="settings_saved">Settings saved</string>
+    <string name="settings_reset_done">Defaults restored</string>
+    <string name="btn_saved">Saved</string>
+    <string name="unsaved_hint">Unsaved changes</string>
+    <string name="reset_confirm_title">Reset all settings?</string>
+    <string name="reset_confirm_text">This restores the defaults, including the NTP server list, and switches the servers off.</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_reset_confirm">Reset</string>
     <string name="ble_cfg_title" translatable="false">BLE Current Time Service</string>
     <string name="f_adv">Advertising interval (ms)</string>
     <string name="f_notify">Notify subscribers</string>

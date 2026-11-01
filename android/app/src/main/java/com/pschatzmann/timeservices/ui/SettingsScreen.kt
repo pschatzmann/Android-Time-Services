@@ -5,6 +5,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import com.pschatzmann.timeservices.Defaults
+import com.pschatzmann.timeservices.SystemConfig
+import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -111,6 +124,8 @@ fun SettingsScreen(vm: TimeEngine) {
     var holdover by remember(cfg) { mutableStateOf(cfg.disciplining.holdoverTimeoutSec.toString()) }
     var pref1 by remember(cfg) { mutableStateOf(cfg.disciplining.preferStratum1) }
     var keepAwake by remember(cfg) { mutableStateOf(cfg.keepAwake) }
+    var gnssRaw by remember(cfg) { mutableStateOf(cfg.gnssRawEnabled) }
+    val gnssState by vm.gnssState.collectAsStateWithLifecycle()
     var pubSource by remember(cfg) { mutableStateOf(cfg.publishSourceId) }
     var ntpRows by remember(cfg) {
         mutableStateOf(
@@ -137,7 +152,88 @@ fun SettingsScreen(vm: TimeEngine) {
             keyboardOptions = KeyboardOptions(keyboardType = if (decimal) KeyboardType.Decimal else KeyboardType.Number),
         )
 
-    Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    /** The configuration that Save would store, built from what is currently entered. */
+    fun draft(c: SystemConfig): SystemConfig {
+            val oldById = c.sources.associateBy { it.id }
+            val newNtp = ntpRows.filter { isValidNtpHost(it.host) }.map { r ->
+                SourceConfig(
+                    id = r.id,
+                    name = r.name.trim().ifEmpty { r.host.trim() },
+                    type = SourceType.NTP,
+                    enabled = r.enabled,
+                    stratum = oldById[r.id]?.stratum ?: r.stratum,
+                    weight = r.weight,
+                    pollIntervalSec = r.poll.toIntOrNull()?.coerceIn(4, 86_400) ?: 16,
+                    hostOrPort = r.host.trim(),
+                )
+            }
+            // Keep the original position of the NTP block among the other sources.
+            val sources = buildList {
+                var inserted = false
+                for (s in c.sources) {
+                    if (s.type == SourceType.NTP) {
+                        if (!inserted) {
+                            addAll(newNtp)
+                            inserted = true
+                        }
+                    } else {
+                        add(s)
+                    }
+                }
+                if (!inserted) addAll(newNtp)
+            }
+            val publish = if (
+                pubSource == TimeEngine.PUBLISH_FUSED || pubSource == TimeEngine.PUBLISH_SYSTEM ||
+                sources.any { it.id == pubSource }
+            ) pubSource else TimeEngine.PUBLISH_FUSED
+            return c.copy(
+                keepAwake = keepAwake,
+                gnssRawEnabled = gnssRaw,
+                publishSourceId = publish,
+                sources = sources,
+                ntpServer = NtpServerConfig(
+                    enabled = c.ntpServer.enabled,
+                    listenPort = port.toIntOrNull()?.coerceIn(1024, 65535) ?: c.ntpServer.listenPort,
+                    stratum = stratum.toIntOrNull()?.coerceIn(1, 15) ?: c.ntpServer.stratum,
+                    refId = refId.ifBlank { c.ntpServer.refId },
+                    leapIndicator = leap,
+                    rateLimitPerMin = rate.toIntOrNull()?.coerceAtLeast(0) ?: c.ntpServer.rateLimitPerMin,
+                    allowSubnets = subnets.split(",").map { it.trim() }.filter { it.isNotEmpty() }.ifEmpty { listOf("0.0.0.0/0") },
+                ),
+                bleCts = BleCtsConfig(
+                    enabled = c.bleCts.enabled,
+                    advIntervalMs = adv.toIntOrNull()?.coerceIn(20, 10000) ?: c.bleCts.advIntervalMs,
+                    sendNotifications = notify,
+                    notifyIntervalMs = notifyValue.replace(',', '.').toDoubleOrNull()
+                        ?.let { Math.round(it * notifyUnit).toInt().coerceIn(100, 86_400_000) }
+                        ?: c.bleCts.notifyIntervalMs,
+                ),
+                disciplining = DiscipliningConfig(
+                    algorithm = algo,
+                    pllTimeConstantSec = tau.toIntOrNull()?.coerceAtLeast(1) ?: c.disciplining.pllTimeConstantSec,
+                    fllBandwidthHz = fll.toDoubleOrNull() ?: c.disciplining.fllBandwidthHz,
+                    maxSlewPpm = slew.toIntOrNull()?.coerceAtLeast(1) ?: c.disciplining.maxSlewPpm,
+                    holdoverTimeoutSec = holdover.toIntOrNull()?.coerceAtLeast(1) ?: c.disciplining.holdoverTimeoutSec,
+                    preferStratum1 = pref1,
+                ),
+            )
+    }
+
+    val snackbar = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val haptic = LocalHapticFeedback.current
+    val savedMessage = stringResource(R.string.settings_saved)
+    val resetMessage = stringResource(R.string.settings_reset_done)
+    var showResetDialog by remember { mutableStateOf(false) }
+
+    // Unsaved changes = what Save would store now, compared with what it would have stored when the screen was loaded.
+    val draftNow = draft(cfg)
+    val baseline = remember(cfg) { draftNow }
+    val dirty = draftNow != baseline
+    val isDefaults = cfg == Defaults.config()
+
+    Box(Modifier.fillMaxSize()) {
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         ScreenTitle(stringResource(R.string.nav_settings), stringResource(R.string.settings_subtitle))
 
         AppCard {
@@ -270,6 +366,19 @@ fun SettingsScreen(vm: TimeEngine) {
         }
 
         AppCard {
+            Text(stringResource(R.string.gnss_raw_title), fontWeight = FontWeight.SemiBold)
+            SectionNote(stringResource(R.string.gnss_raw_note))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.gnss_raw_switch), Modifier.weight(1f))
+                Switch(gnssRaw, { gnssRaw = it }, enabled = gnssState.supported)
+            }
+            Text(
+                gnssRawStatusText(gnssState, gnssRaw),
+                fontFamily = Mono, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+
+        AppCard {
             Text(stringResource(R.string.bg_title), fontWeight = FontWeight.SemiBold)
             Text(
                 stringResource(R.string.bg_note),
@@ -312,77 +421,52 @@ fun SettingsScreen(vm: TimeEngine) {
             }
         }
 
+        if (dirty) {
+            Text(stringResource(R.string.unsaved_hint), fontFamily = Mono, fontSize = 12.sp, color = Amber)
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
             Button(
                 onClick = {
-                    vm.updateConfig { c ->
-                        val oldById = c.sources.associateBy { it.id }
-                        val newNtp = ntpRows.filter { isValidNtpHost(it.host) }.map { r ->
-                            SourceConfig(
-                                id = r.id,
-                                name = r.name.trim().ifEmpty { r.host.trim() },
-                                type = SourceType.NTP,
-                                enabled = r.enabled,
-                                stratum = oldById[r.id]?.stratum ?: r.stratum,
-                                weight = r.weight,
-                                pollIntervalSec = r.poll.toIntOrNull()?.coerceIn(4, 86_400) ?: 16,
-                                hostOrPort = r.host.trim(),
-                            )
-                        }
-                        // Keep the original position of the NTP block among the other sources.
-                        val sources = buildList {
-                            var inserted = false
-                            for (s in c.sources) {
-                                if (s.type == SourceType.NTP) {
-                                    if (!inserted) {
-                                        addAll(newNtp)
-                                        inserted = true
-                                    }
-                                } else {
-                                    add(s)
-                                }
-                            }
-                            if (!inserted) addAll(newNtp)
-                        }
-                        val publish = if (
-                            pubSource == TimeEngine.PUBLISH_FUSED || pubSource == TimeEngine.PUBLISH_SYSTEM ||
-                            sources.any { it.id == pubSource }
-                        ) pubSource else TimeEngine.PUBLISH_FUSED
-                        c.copy(
-                            keepAwake = keepAwake,
-                            publishSourceId = publish,
-                            sources = sources,
-                            ntpServer = NtpServerConfig(
-                                enabled = c.ntpServer.enabled,
-                                listenPort = port.toIntOrNull()?.coerceIn(1024, 65535) ?: c.ntpServer.listenPort,
-                                stratum = stratum.toIntOrNull()?.coerceIn(1, 15) ?: c.ntpServer.stratum,
-                                refId = refId.ifBlank { c.ntpServer.refId },
-                                leapIndicator = leap,
-                                rateLimitPerMin = rate.toIntOrNull()?.coerceAtLeast(0) ?: c.ntpServer.rateLimitPerMin,
-                                allowSubnets = subnets.split(",").map { it.trim() }.filter { it.isNotEmpty() }.ifEmpty { listOf("0.0.0.0/0") },
-                            ),
-                            bleCts = BleCtsConfig(
-                                enabled = c.bleCts.enabled,
-                                advIntervalMs = adv.toIntOrNull()?.coerceIn(20, 10000) ?: c.bleCts.advIntervalMs,
-                                sendNotifications = notify,
-                                notifyIntervalMs = notifyValue.replace(',', '.').toDoubleOrNull()
-                                    ?.let { Math.round(it * notifyUnit).toInt().coerceIn(100, 86_400_000) }
-                                    ?: c.bleCts.notifyIntervalMs,
-                            ),
-                            disciplining = DiscipliningConfig(
-                                algorithm = algo,
-                                pllTimeConstantSec = tau.toIntOrNull()?.coerceAtLeast(1) ?: c.disciplining.pllTimeConstantSec,
-                                fllBandwidthHz = fll.toDoubleOrNull() ?: c.disciplining.fllBandwidthHz,
-                                maxSlewPpm = slew.toIntOrNull()?.coerceAtLeast(1) ?: c.disciplining.maxSlewPpm,
-                                holdoverTimeoutSec = holdover.toIntOrNull()?.coerceAtLeast(1) ?: c.disciplining.holdoverTimeoutSec,
-                                preferStratum1 = pref1,
-                            ),
-                        )
-                    }
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    vm.updateConfig { c -> draft(c) }
+                    scope.launch { snackbar.showSnackbar(savedMessage) }
                 },
+                enabled = dirty,
                 modifier = Modifier.weight(1f),
-            ) { Text(stringResource(R.string.btn_save)) }
-            OutlinedButton(onClick = { vm.resetDefaults() }, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.btn_reset)) }
+            ) {
+                if (dirty) {
+                    Text(stringResource(R.string.btn_save))
+                } else {
+                    Icon(Icons.Default.Check, null)
+                    Text(stringResource(R.string.btn_saved), Modifier.padding(start = 8.dp))
+                }
+            }
+            OutlinedButton(
+                onClick = { showResetDialog = true },
+                enabled = dirty || !isDefaults,
+                modifier = Modifier.weight(1f),
+            ) { Text(stringResource(R.string.btn_reset)) }
         }
+    }
+    SnackbarHost(snackbar, Modifier.align(Alignment.BottomCenter).padding(16.dp))
+    }
+
+    if (showResetDialog) {
+        AlertDialog(
+            onDismissRequest = { showResetDialog = false },
+            title = { Text(stringResource(R.string.reset_confirm_title)) },
+            text = { Text(stringResource(R.string.reset_confirm_text)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showResetDialog = false
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    vm.resetDefaults()
+                    scope.launch { snackbar.showSnackbar(resetMessage) }
+                }) { Text(stringResource(R.string.btn_reset_confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showResetDialog = false }) { Text(stringResource(R.string.btn_cancel)) }
+            },
+        )
     }
 }

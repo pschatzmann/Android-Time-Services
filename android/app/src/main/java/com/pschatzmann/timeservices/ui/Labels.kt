@@ -5,7 +5,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.pschatzmann.timeservices.R
 import com.pschatzmann.timeservices.SourceConfig
+import com.pschatzmann.timeservices.GnssState
+import com.pschatzmann.timeservices.RawStatus
 import com.pschatzmann.timeservices.SourceStatus
+import com.pschatzmann.timeservices.asString
 
 @Composable
 fun SourceStatus.label(): String = stringResource(
@@ -32,3 +35,16 @@ private fun builtInNameRes(src: SourceConfig): Int? = when {
 fun SourceConfig.displayName(): String = builtInNameRes(this)?.let { stringResource(it) } ?: name
 
 fun SourceConfig.displayName(ctx: Context): String = builtInNameRes(this)?.let { ctx.getString(it) } ?: name
+
+/** One-line status of the optional raw GNSS clock, for the Settings and Sources screens. */
+@Composable
+fun gnssRawStatusText(g: GnssState, enabled: Boolean): String = when {
+    !g.supported -> stringResource(R.string.err_gnss_unsupported)
+    !enabled -> stringResource(R.string.gnss_raw_off)
+    else -> when (g.rawStatus) {
+        RawStatus.OFF -> stringResource(R.string.gnss_raw_waiting)
+        RawStatus.WAITING -> stringResource(R.string.gnss_raw_waiting)
+        RawStatus.ACTIVE -> stringResource(R.string.gnss_raw_active, g.rawUncertaintyUs)
+        RawStatus.UNSUPPORTED -> g.rawDetail?.asString() ?: stringResource(R.string.gnss_raw_unsupported)
+    }
+}

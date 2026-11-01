@@ -2,13 +2,14 @@
 
 An Android app (Kotlin, Jetpack Compose) that gathers time from several sources, combines them into one clock estimate, and serves that time to other devices over NTP and Bluetooth LE.
 
-> **Status:** builds and runs. It has been installed and exercised on one device (Samsung Galaxy A34, Android 16): the screens, NTP polling, GNSS, offline handling and alerts, and several of the languages. Not yet tested: serving real NTP clients from other machines, and the BLE server/client against a real peer. Treat it as a working prototype.
+> **Status:** builds and runs. It has been installed and exercised on one device (Samsung Galaxy A34, Android 16): the screens, NTP polling, GNSS, offline handling and alerts, and several of the languages. Not yet tested: serving real NTP clients from other machines, the BLE server/client against a real peer, and the optional raw GNSS clock. Treat it as a working prototype.
 
 ## Features
 
 - **Time sources**
   - **NTP servers**, queried over UDP (RFC 5905). The list is yours to manage in *Settings → NTP time servers*: add, edit, enable/disable or remove servers, with quick-add buttons for common public servers. A built-in packet analyser is on the *Sources* tab.
   - **Phone GNSS** (Location API). Needs a sky view; accuracy is tens of milliseconds, not PPS-grade. Devices without a GNSS receiver are detected and the source is disabled.
+  - **Optional raw GNSS clock** (*Settings → Satellite time*): on phones that report the receiver's raw clock, the offset is computed from it instead, which can be far more precise. It switches itself off on phones that do not provide the data and the app falls back to the normal GNSS time. Not yet verified on a device.
   - **Bluetooth LE peer** offering the Current Time Service (0x1805).
 - **Clock disciplining:** weighted mean, median or PLL/FLL smoothing, with outlier rejection, slew limit and holdover.
 - **Publishing**
@@ -19,7 +20,7 @@ An Android app (Kotlin, Jetpack Compose) that gathers time from several sources,
 - **Runs in the background:** a foreground service keeps the servers alive after the app is closed, with an optional wake and Wi-Fi lock for screen-off operation.
 - **Error notifications:** problems (server cannot start, Bluetooth fault, a source failing for a minute, serving unsynchronised time, service cannot start) raise a system notification and clear themselves when fixed.
 - **Stability:** uncaught exceptions are logged to `files/crash.log`, reported by notification and survived instead of closing the app. If errors repeat (5 in 30 s) or memory runs out, normal crash behaviour returns.
-- **Screens:** *Clock* (local, UTC, TAI and GPS time, time zones, sync quality), *Sources*, *Publish*, *Metrics* (charts with a value scale and a short explanation each), *Settings* (every section explained).
+- **Screens:** *Clock* (local, UTC, TAI and GPS time, time zones, sync quality), *Sources*, *Publish*, *Metrics* (charts with a value scale and a short explanation each), *Settings* (every section explained; Save and Reset are greyed out when there is nothing to save or reset, and Reset asks for confirmation).
 - **Languages:** English, German, French, Spanish, Simplified Chinese and Traditional Chinese (Taiwan wording). The app follows the phone's language and falls back to English; a picker in Settings (and Android's per-app language settings) overrides it.
 
 ## Important limits
@@ -72,13 +73,14 @@ To add a language: add its column or dictionary in the script, a `<locale>` in `
 android/
   tools/                 translation table and generator
   app/src/main/java/com/pschatzmann/timeservices/
-    TimeEngine.kt     source polling, fusion, server control (process-wide)
-    TimeService.kt    foreground service and its notification
-    TimeServicesApp.kt        application; installs the safety net
+    TimeEngine.kt        source polling, fusion, server control (process-wide)
+    TimeService.kt       foreground service and its notification
+    TimeServicesApp.kt   application; installs the safety net
     Safety.kt            survives uncaught exceptions, writes crash.log
     AlertNotifier.kt     error notifications
     NetworkMonitor.kt    Wi-Fi / mobile / Ethernet availability
-    GnssSource.kt        phone GNSS time source
+    GnssSource.kt        phone GNSS time source (Location API)
+    GnssRawClock.kt      optional raw GNSS clock source
     ConfigStore.kt       settings persistence
     UiText.kt            translatable messages from non-UI code
     TimeZoneEngine.kt    time zone details and names
@@ -89,14 +91,22 @@ android/
 
 ## Before publishing on Google Play
 
-- Use a name without "Android" (Google's trademark rules); the current name is "NTP & CTS Time Services". Search Play and a trademark database for existing "TimeServices" products first.
+- Use a name without "Android" (Google's trademark rules); the current name is "NTP & CTS Time Services". Search Play and a trademark database (for example EUIPO or USPTO) for existing products with a similar name first.
 - The package ID `com.pschatzmann.timeservices` is permanent once published.
 - Play needs a signed release bundle (`.aab`), a privacy policy URL, written justifications for the location, Bluetooth and `specialUse` foreground-service permissions, and a target API level that meets the current requirement.
 - Do not describe the app as setting the phone's clock.
 
 ## Roadmap
 
-- Native review of all translations.
-- Optional sub-millisecond GPS time from raw GNSS clock measurements.
-- Optional root support for binding UDP port 123.
-- Signed release build.
+Roughly in order of priority.
+
+1. **Verify on real hardware** (nothing below has been tested yet):
+   - the optional raw GNSS clock, outdoors, against a trusted reference on your own network (internet NTP is too jittery to prove sub-millisecond accuracy), on a phone that provides raw measurements;
+   - the NTP server answering real clients (chrony, `ntpdate`) from another machine;
+   - the BLE server and client against a real Current Time Service peer.
+2. **Native review of all translations** (German, French, Spanish, Simplified and Traditional Chinese).
+3. **Automated tests:** none exist yet. Unit tests for the NTP packet code, the BLE time codec and the fusion logic, plus UI tests for Settings.
+4. **Sub-millisecond serving:** nanosecond timestamps in the NTP server (it stamps whole milliseconds today). Scheduling jitter in Java code will still limit the result to roughly a millisecond.
+5. **Optional root support** for binding UDP port 123, and documentation for forwarding port 123 on a router.
+6. **Release readiness:** signed `.aab`, privacy policy, Play Console declarations for location, Bluetooth and the foreground-service type, store listing, and a check of the current target-API requirement.
+7. **Smaller ideas:** treating phone hotspot (tethering) as an online network, and an in-app view of `crash.log`.

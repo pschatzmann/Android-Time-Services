@@ -48,6 +48,8 @@ data class SystemConfig(
     val sources: List<SourceConfig> = Defaults.sources(),
     /** Hold a partial wake lock + Wi-Fi lock while a server runs, so it answers with the screen off. */
     val keepAwake: Boolean = false,
+    /** Use the receiver's raw clock for GNSS time where the phone supports it (falls back automatically). */
+    val gnssRawEnabled: Boolean = true,
     /** What the NTP / BLE servers publish: "fused", "system", or the id of one time source. */
     val publishSourceId: String = "fused",
 )
@@ -129,4 +131,7 @@ data class GnssState(
     val satsVisible: Int = 0,
     val accuracyM: Float = 0f,
     val hasFix: Boolean = false,
+    val rawStatus: RawStatus = RawStatus.OFF,
+    val rawUncertaintyUs: Double = 0.0,
+    val rawDetail: UiText? = null,
 )

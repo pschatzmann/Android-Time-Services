@@ -208,6 +208,10 @@
     <string name="reset_confirm_text">这将恢复默认设置（包括 NTP 服务器列表），并关闭各服务器。</string>
     <string name="btn_cancel">取消</string>
     <string name="btn_reset_confirm">重置</string>
+    <string name="clock_note_offset">系统时钟与估算的真实时间之间的差距。负值表示系统时钟偏快。</string>
+    <string name="clock_note_drift">该偏移的变化速度，单位 ppb（十亿分之一；1 ppb 即每秒 1 纳秒）。接近 0 表示稳定。</string>
+    <string name="clock_note_disp">时间估计的误差范围，由各时间源的离散程度和延迟得出。越小越可信。</string>
+    <string name="clock_note_delay">到时间源的网络往返时间。它限制了时间所能达到的精确程度。</string>
     <string name="f_adv">广播间隔（ms）</string>
     <string name="f_notify">通知订阅者</string>
     <string name="disc_title">时钟驯服</string>

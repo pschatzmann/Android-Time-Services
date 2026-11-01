@@ -37,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -157,18 +158,31 @@ fun ClockScreen(vm: TimeEngine) {
         }
 
         Text(stringResource(R.string.sync_header), fontFamily = Mono, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            StatTile(stringResource(R.string.tile_offset_vs_system), "%+.3f ms".format(st.offsetNs / 1e6), Modifier.weight(1f), Emerald)
-            StatTile(stringResource(R.string.tile_drift), "%+.1f ppb".format(st.driftPpb), Modifier.weight(1f), Cyan)
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            StatTile(stringResource(R.string.tile_root_disp), "%.2f ms".format(st.rootDispersionMs), Modifier.weight(1f), Amber)
-            StatTile(stringResource(R.string.tile_root_delay), "%.2f ms".format(st.rootDelayMs), Modifier.weight(1f), Purple)
+        AppCard {
+            KpiRow(stringResource(R.string.tile_offset_vs_system), "%+.3f ms".format(st.offsetNs / 1e6), Emerald, stringResource(R.string.clock_note_offset))
+            HorizontalDivider()
+            KpiRow(stringResource(R.string.tile_drift), "%+.1f ppb".format(st.driftPpb), Cyan, stringResource(R.string.clock_note_drift))
+            HorizontalDivider()
+            KpiRow(stringResource(R.string.tile_root_disp), "%.2f ms".format(st.rootDispersionMs), Amber, stringResource(R.string.clock_note_disp))
+            HorizontalDivider()
+            KpiRow(stringResource(R.string.tile_root_delay), "%.2f ms".format(st.rootDelayMs), Purple, stringResource(R.string.clock_note_delay))
         }
         Text(
             stringResource(R.string.clock_note),
             fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Start,
         )
+    }
+}
+
+/** One metric as a line (name left, value right) with its explanation underneath. */
+@Composable
+private fun KpiRow(name: String, value: String, color: Color, explanation: String) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Text(name.uppercase(), fontFamily = Mono, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+            Text(value, fontFamily = Mono, fontWeight = FontWeight.Bold, fontSize = 17.sp, color = color)
+        }
+        Text(explanation, fontSize = 11.sp, lineHeight = 15.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

@@ -113,4 +113,8 @@ ZH = {
     "reset_confirm_text": "这将恢复默认设置（包括 NTP 服务器列表），并关闭各服务器。",
     "btn_cancel": "取消",
     "btn_reset_confirm": "重置",
+    "clock_note_offset": "系统时钟与估算的真实时间之间的差距。负值表示系统时钟偏快。",
+    "clock_note_drift": "该偏移的变化速度，单位 ppb（十亿分之一；1 ppb 即每秒 1 纳秒）。接近 0 表示稳定。",
+    "clock_note_disp": "时间估计的误差范围，由各时间源的离散程度和延迟得出。越小越可信。",
+    "clock_note_delay": "到时间源的网络往返时间。它限制了时间所能达到的精确程度。",
 }

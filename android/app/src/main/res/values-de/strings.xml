@@ -208,6 +208,10 @@
     <string name="reset_confirm_text">Dadurch werden die Standardwerte wiederhergestellt, einschließlich der NTP-Serverliste, und die Server werden ausgeschaltet.</string>
     <string name="btn_cancel">Abbrechen</string>
     <string name="btn_reset_confirm">Zurücksetzen</string>
+    <string name="clock_note_offset">Wie weit die Systemuhr von der geschätzten wahren Zeit abweicht. Negativ bedeutet: Die Systemuhr geht vor.</string>
+    <string name="clock_note_drift">Wie schnell sich dieser Offset ändert, in ppb (Teile pro Milliarde; 1 ppb entspricht 1 ns pro Sekunde). Nahe 0 bedeutet stabil.</string>
+    <string name="clock_note_disp">Die Fehlerspanne der Zeitschätzung, abgeleitet aus Streuung und Laufzeit der Quellen. Kleiner bedeutet vertrauenswürdiger.</string>
+    <string name="clock_note_delay">Netzwerk-Umlaufzeit zur Zeitquelle. Sie begrenzt, wie genau die Zeit bekannt sein kann.</string>
     <string name="f_adv">Advertising-Intervall (ms)</string>
     <string name="f_notify">Abonnenten benachrichtigen</string>
     <string name="disc_title">Uhren-Disziplinierung</string>

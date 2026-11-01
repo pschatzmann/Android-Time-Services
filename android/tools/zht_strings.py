@@ -113,4 +113,8 @@ ZHT = {
     "reset_confirm_text": "這會還原預設值（包括 NTP 伺服器清單），並關閉各伺服器。",
     "btn_cancel": "取消",
     "btn_reset_confirm": "重設",
+    "clock_note_offset": "系統時鐘與估算的真實時間之間的差距。負值表示系統時鐘偏快。",
+    "clock_note_drift": "該偏移的變化速度，單位 ppb（十億分之一；1 ppb 即每秒 1 奈秒）。接近 0 表示穩定。",
+    "clock_note_disp": "時間估計的誤差範圍，由各時間來源的離散程度與延遲得出。越小越可信。",
+    "clock_note_delay": "到時間來源的網路往返時間。它限制了時間所能達到的精確程度。",
 }

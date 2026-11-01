@@ -208,6 +208,10 @@
     <string name="reset_confirm_text">Se restablecerán los valores predeterminados, incluida la lista de servidores NTP, y se apagarán los servidores.</string>
     <string name="btn_cancel">Cancelar</string>
     <string name="btn_reset_confirm">Restablecer</string>
+    <string name="clock_note_offset">Cuánto se desvía el reloj del sistema de la hora real estimada. Un valor negativo significa que el reloj del sistema va adelantado.</string>
+    <string name="clock_note_drift">A qué velocidad cambia ese desfase, en ppb (partes por mil millones; 1 ppb equivale a 1 ns por segundo). Cerca de 0 indica estabilidad.</string>
+    <string name="clock_note_disp">El margen de error de la estimación de la hora, calculado a partir de la dispersión y el retardo de las fuentes. Cuanto menor, más fiable.</string>
+    <string name="clock_note_delay">Tiempo de ida y vuelta por la red hasta la fuente de hora. Limita la precisión con la que se puede conocer la hora.</string>
     <string name="f_adv">Intervalo de anuncio (ms)</string>
     <string name="f_notify">Notificar a los suscriptores</string>
     <string name="disc_title">Disciplina del reloj</string>

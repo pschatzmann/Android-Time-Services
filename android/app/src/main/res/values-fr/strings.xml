@@ -208,6 +208,10 @@
     <string name="reset_confirm_text">Les valeurs par défaut seront rétablies, y compris la liste des serveurs NTP, et les serveurs seront désactivés.</string>
     <string name="btn_cancel">Annuler</string>
     <string name="btn_reset_confirm">Réinitialiser</string>
+    <string name="clock_note_offset">Écart entre l’horloge système et l’heure réelle estimée. Une valeur négative signifie que l’horloge système avance.</string>
+    <string name="clock_note_drift">Vitesse à laquelle ce décalage change, en ppb (parties par milliard ; 1 ppb = 1 ns par seconde). Proche de 0 : stable.</string>
+    <string name="clock_note_disp">La marge d’erreur de l’estimation de l’heure, déduite de la dispersion et du délai des sources. Plus c’est petit, plus c’est fiable.</string>
+    <string name="clock_note_delay">Temps aller-retour réseau vers la source de temps. Il limite la précision avec laquelle l’heure peut être connue.</string>
     <string name="f_adv">Intervalle d’annonce (ms)</string>
     <string name="f_notify">Notifier les abonnés</string>
     <string name="disc_title">Asservissement de l’horloge</string>

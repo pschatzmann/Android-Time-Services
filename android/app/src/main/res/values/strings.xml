@@ -219,6 +219,10 @@
     <string name="reset_confirm_text">This restores the defaults, including the NTP server list, and switches the servers off.</string>
     <string name="btn_cancel">Cancel</string>
     <string name="btn_reset_confirm">Reset</string>
+    <string name="clock_note_offset">How far the system clock is from the estimated true time. Negative means the system clock is ahead.</string>
+    <string name="clock_note_drift">How fast that offset is changing, in ppb (parts per billion; 1 ppb is 1 ns per second). Near 0 means steady.</string>
+    <string name="clock_note_disp">The error bar of the time estimate, from the spread and delay of the sources. Smaller means more trustworthy.</string>
+    <string name="clock_note_delay">Network round-trip time to the time source. It limits how precisely the time can be known.</string>
     <string name="ble_cfg_title" translatable="false">BLE Current Time Service</string>
     <string name="f_adv">Advertising interval (ms)</string>
     <string name="f_notify">Notify subscribers</string>

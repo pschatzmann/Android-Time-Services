@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -13,13 +15,35 @@ android {
         minSdk = 26
         targetSdk = 35
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
         resourceConfigurations += listOf("en", "de", "fr", "es", "zh", "b+zh+Hant")
+    }
+
+    // Release signing. The key lives outside the repository: point TIMESERVICES_KEYSTORE_PROPERTIES at a
+    // properties file (storeFile, storePassword, keyAlias, keyPassword) or use the default location below.
+    // Without a key file, the release build is produced unsigned instead of failing.
+    val keystoreProps = Properties().apply {
+        val file = file(
+            System.getenv("TIMESERVICES_KEYSTORE_PROPERTIES")
+                ?: "${System.getProperty("user.home")}/Android/keystore/keystore.properties",
+        )
+        if (file.exists()) file.inputStream().use { load(it) }
+    }
+    signingConfigs {
+        if (keystoreProps.containsKey("storeFile")) {
+            create("release") {
+                storeFile = file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfigs.findByName("release")?.let { signingConfig = it }
         }
     }
 

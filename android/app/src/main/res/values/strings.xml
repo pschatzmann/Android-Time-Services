@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Android Time Services</string>
-    <string name="app_bar_title" translatable="false">Android Time Services</string>
+    <string name="app_name" translatable="false">NTP &amp; CTS Time Services</string>
+    <string name="app_bar_title" translatable="false">NTP &amp; CTS Time Services</string>
     <string name="nav_clock">Clock</string>
     <string name="nav_sources">Sources</string>
     <string name="nav_publish">Publish</string>
@@ -225,6 +225,8 @@
     <string name="lang_de" translatable="false">Deutsch</string>
     <string name="lang_fr" translatable="false">Français</string>
     <string name="lang_es" translatable="false">Español</string>
+    <string name="lang_zh" translatable="false">简体中文</string>
+    <string name="lang_zht" translatable="false">繁體中文</string>
     <string name="ble_err_no_bt">This device has no Bluetooth</string>
     <string name="ble_err_off">Bluetooth is turned off</string>
     <string name="ble_err_no_adv">BLE advertising is not supported</string>

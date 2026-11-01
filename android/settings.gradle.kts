@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "AndroidTimeServices"
+rootProject.name = "NtpCtsTimeServices"
 include(":app")

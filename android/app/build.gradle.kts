@@ -5,16 +5,16 @@ plugins {
 }
 
 android {
-    namespace = "com.pschatzmann.chronos"
+    namespace = "com.pschatzmann.timeservices"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.pschatzmann.chronos"
+        applicationId = "com.pschatzmann.timeservices"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-        resourceConfigurations += listOf("en", "de", "fr", "es")
+        resourceConfigurations += listOf("en", "de", "fr", "es", "zh", "b+zh+Hant")
     }
 
     buildTypes {

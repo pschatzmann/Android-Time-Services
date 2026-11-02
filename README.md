@@ -33,12 +33,6 @@ Download the APK from the [Releases](https://github.com/pschatzmann/Android-Time
 
 To build it yourself: `cd android && ./gradlew installDebug` (see [Build and install](https://github.com/pschatzmann/Android-Time-Services/wiki/Build-and-Install)).
 
-## Sponsor Me
-
-This software is totally free, but you can make me happy by rewarding me with a treat
-
-- [Buy me a coffee](https://www.buymeacoffee.com/philschatzh)
-- [Paypal me](https://paypal.me/pschatzmann?country.x=CH&locale.x=en_US)
 
 ## License
 

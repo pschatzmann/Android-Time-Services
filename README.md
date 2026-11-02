@@ -16,8 +16,8 @@ An Android app that gathers time from NTP servers, the phone's GNSS receiver and
 
 The documentation is in the [project wiki](https://github.com/pschatzmann/Android-Time-Services/wiki/Home):
 
+- [User manual](https://github.com/pschatzmann/Android-Time-Services/wiki/User-Manual) (a screenshot and description of every tab, time scales)
 - [Features](https://github.com/pschatzmann/Android-Time-Services/wiki/Features)
-- [Time scales on the Clock screen](https://github.com/pschatzmann/Android-Time-Services/wiki/Time-Scales) (UTC, TAI, GPS)
 - [Important limits](https://github.com/pschatzmann/Android-Time-Services/wiki/Important-Limits)
 - [Build and install](https://github.com/pschatzmann/Android-Time-Services/wiki/Build-and-Install) and [tool setup](android/SETUP.md)
 - [Translations](https://github.com/pschatzmann/Android-Time-Services/wiki/Translations)
